@@ -38,7 +38,7 @@
             margin-top: 20px;
             font-weight: bold;
         }
-        #descargar {
+        #guardar {
             margin-top: 20px;
         }
     </style>
@@ -49,27 +49,44 @@
 
 <div id="personajes-container"></div>
 
-<div id="nota">Nota: Regalo mínimo $50 y recordar la actividad familiar (mínimo un juego con sus respectivos elementos).</div>
+<div id="nota">
+    Nota: Regalo mínimo $50 y recordar la actividad familiar (mínimo un juego con sus respectivos elementos).
+</div>
 
-<button id="descargar">Descargar Resultados</button>
+<button id="guardar">Guardar Resultados</button>
 
-<script>
+<!-- Firebase SDK -->
+<script type="module">
+    // Import Firebase
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
+    import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+    // Configuración de Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyC76-XHMG_ttZ2Kjt5zTwOw21Gz6AZzJTo",
+        authDomain: "amigo-secreto-95343.firebaseapp.com",
+        projectId: "amigo-secreto-95343",
+        storageBucket: "amigo-secreto-95343.firebasestorage.app",
+        messagingSenderId: "130528043018",
+        appId: "1:130528043018:web:f9756caee9d560af7a7ff3",
+        measurementId: "G-83PG9ZVNQ1"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
+
     // Lista de personajes
-    const personajes = [
-        "Ironman",
-        "Thor",
-        "Hulk",
-        "Viuda Negra",
-        "Bruja Escarlata",
-        "Capitana Marvel"
-    ];
+    const personajes = ["Ironman", "Thor", "Hulk", "Viuda Negra", "Bruja Escarlata", "Capitana Marvel"];
 
     const container = document.getElementById('personajes-container');
 
     // Cargar resultados previos desde localStorage
     let resultados = JSON.parse(localStorage.getItem('resultadosAmigoSecreto')) || {};
 
-    // Mostrar personajes
+    // Mostrar personajes con input
     personajes.forEach(personaje => {
         const div = document.createElement('div');
         div.classList.add('personaje');
@@ -82,7 +99,7 @@
         input.placeholder = 'Nombre de tu amigo secreto';
         input.value = resultados[personaje] || '';
 
-        // Guardar cambios en localStorage
+        // Guardar automáticamente en localStorage
         input.addEventListener('input', () => {
             resultados[personaje] = input.value;
             localStorage.setItem('resultadosAmigoSecreto', JSON.stringify(resultados));
@@ -93,22 +110,27 @@
         container.appendChild(div);
     });
 
-    // Descargar resultados como CSV
-    document.getElementById('descargar').addEventListener('click', () => {
-        let csv = "Personaje,Amigo Secreto\n";
-        for (let p of personajes) {
-            const amigo = resultados[p] || '';
-            csv += `"${p}","${amigo}"\n`;
+    // Guardar resultados en Firestore
+    document.getElementById('guardar').addEventListener('click', async () => {
+        try {
+            const resultadosArray = personajes.map(p => ({ personaje: p, amigoSecreto: resultados[p] || '' }));
+            for (let r of resultadosArray) {
+                await addDoc(collection(db, "resultados"), r);
+            }
+            alert("Resultados guardados en Firestore correctamente!");
+        } catch (e) {
+            console.error("Error guardando resultados: ", e);
+            alert("Hubo un error guardando los resultados.");
         }
-
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'resultados_amigo_secreto.csv';
-        a.click();
-        URL.revokeObjectURL(url);
     });
+
+    // Función opcional para ver resultados en consola
+    async function verResultados() {
+        const querySnapshot = await getDocs(collection(db, "resultados"));
+        querySnapshot.forEach((doc) => {
+            console.log(doc.id, " => ", doc.data());
+        });
+    }
 </script>
 
 </body>
