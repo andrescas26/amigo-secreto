@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Amigo Secreto</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
+    h1 { margin-bottom: 30px; }
+    .card { 
+      border: 1px solid #ccc; 
+      padding: 20px; 
+      margin: 15px; 
+      border-radius: 10px; 
+      display: inline-block; 
+      width: 250px; 
+      background: #f9f9f9; 
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    }
+    input, button { 
+      margin-top: 10px; 
+      padding: 7px; 
+      width: 90%; 
+      border-radius: 5px; 
+      border: 1px solid #aaa;
+    }
+    button { 
+      background: #4CAF50; 
+      color: white; 
+      font-weight: bold; 
+      cursor: pointer; 
+    }
+    button:hover { background: #45a049; }
+    footer { 
+      margin-top: 40px; 
+      font-size: 15px; 
+      color: #222; 
+      font-weight: bold; 
+    }
+  </style>
+</head>
+<body>
+  <h1>🎁 Amigo Secreto 🎁</h1>
+  <div id="contenedor"></div>
+
+  <footer>
+    <p>📌 Nota: El regalo debe tener un valor mínimo de <strong>$50.000</strong> y llevar mínimo una <strong>actividad familiar con sus respectivo elementos</strong>.</p>
+  </footer>
+
+  <script>
+    // 👉 Reemplaza aquí con los 7 nombres reales de tu grupo
+    const nombres = [
+      "IRONMAN",
+      "THOR",
+      "HULK",
+      "VIUDA NEGRA",
+      "BRUJA ESCARLATA",
+      "BLACK WIDOW",
+      "CAPITA MARVEL"
+    ];
+
+    const deseos = {};
+
+    function crearCartas() {
+      const contenedor = document.getElementById("contenedor");
+      nombres.forEach(nombre => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <h3>${nombre}</h3>
+          <input type="text" placeholder="Escribe tu regalo" id="deseo-${nombre}">
+          <button onclick="guardarDeseo('${nombre}')">Guardar regalo</button>
+        `;
+        contenedor.appendChild(div);
+      });
+    }
+
+    function guardarDeseo(nombre) {
+      const regalo = document.getElementById(`deseo-${nombre}`).value;
+      deseos[nombre] = regalo;
+      alert(`Regalo de ${nombre} guardado ✅`);
+    }
+
+    crearCartas();
+  </script>
+</body>
+</html>
