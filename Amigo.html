@@ -23,13 +23,19 @@
             border-radius: 8px;
             box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
         }
+        input {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
         button {
             background: #4CAF50;
             color: white;
             border: none;
-            padding: 6px 12px;
+            padding: 8px 15px;
             border-radius: 5px;
             cursor: pointer;
+            margin-top: 20px;
         }
         button:hover {
             background: #45a049;
@@ -38,9 +44,91 @@
             margin-top: 20px;
             font-weight: bold;
         }
-        #guardar {
-            margin-top: 20px;
-        }
+    </style>
+</head>
+<body>
+
+<h1>Amigo Secreto</h1>
+
+<div id="personajes-container"></div>
+
+<div id="nota">Nota: Regalo mínimo $50 y recordar la actividad familiar (mínimo un juego con sus respectivos elementos).</div>
+
+<button id="guardar">Guardar Resultados en Firebase</button>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+  // Configuración de Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyC76-XHMG_ttZ2Kjt5zTwOw21Gz6AZzJTo",
+    authDomain: "amigo-secreto-95343.firebaseapp.com",
+    projectId: "amigo-secreto-95343",
+    storageBucket: "amigo-secreto-95343.firebasestorage.app",
+    messagingSenderId: "130528043018",
+    appId: "1:130528043018:web:f9756caee9d560af7a7ff3",
+    measurementId: "G-83PG9ZVNQ1"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getFirestore(app);
+
+  // Personajes
+  const personajes = [
+      "Ironman",
+      "Thor",
+      "Hulk",
+      "Viuda Negra",
+      "Bruja Escarlata",
+      "Capitana Marvel"
+  ];
+
+  const container = document.getElementById('personajes-container');
+  let resultados = {}; // Guardará los amigos secretos temporalmente
+
+  // Crear inputs para cada personaje
+  personajes.forEach(personaje => {
+      const div = document.createElement('div');
+      div.classList.add('personaje');
+
+      const label = document.createElement('span');
+      label.textContent = personaje;
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = 'Nombre de tu amigo secreto';
+      input.addEventListener('input', () => {
+          resultados[personaje] = input.value;
+      });
+
+      div.appendChild(label);
+      div.appendChild(input);
+      container.appendChild(div);
+  });
+
+  // Guardar resultados en Firestore
+  document.getElementById('guardar').addEventListener('click', async () => {
+      try {
+          for (let p of personajes) {
+              await addDoc(collection(db, "resultados"), {
+                  personaje: p,
+                  amigoSecreto: resultados[p] || ""
+              });
+          }
+          alert("Resultados guardados en Firebase correctamente!");
+      } catch (e) {
+          console.error("Error guardando resultados:", e);
+          alert("Hubo un error guardando los resultados.");
+      }
+  });
+</script>
+
+</body>
+</html>        }
     </style>
 </head>
 <body>
@@ -135,3 +223,4 @@
 
 </body>
 </html>
+
